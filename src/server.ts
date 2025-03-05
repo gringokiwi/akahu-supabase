@@ -76,6 +76,11 @@ export const createServer = () => {
 		}
 	});
 
+	app.post("/webhook", async (req, res) => {
+		console.log("[server] Webhook received:", req.body);
+		res.json({ message: "Webhook received" });
+	});
+
 	const startServer = () => {
 		return new Promise((resolve) => {
 			const server = app.listen(PORT, () => {
