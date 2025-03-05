@@ -32,6 +32,24 @@ export const createServer = () => {
 		}
 	});
 
+	app.get("/accounts/:accountId", async (req, res) => {
+		try {
+			const transactions = await getTransactionsForAccount(
+				req.params.accountId,
+			);
+			if (req.query.apiKey === process.env.API_KEY) {
+				res.json(transactions);
+			} else {
+				res.json(
+					transactions.map(({ description, ...publicFields }) => publicFields),
+				);
+			}
+		} catch (error) {
+			console.error("[server] Error fetching transactions:", error);
+			res.status(500).json({ error: "Failed to fetch transactions" });
+		}
+	});
+
 	app.get("/accounts/:accountId/refresh", async (req, res) => {
 		try {
 			if (req.query.apiKey !== process.env.API_KEY) {
@@ -55,24 +73,6 @@ export const createServer = () => {
 		} catch (error) {
 			console.error("[server] Error refreshing transactions:", error);
 			res.status(500).json({ error: "Failed to refresh transactions" });
-		}
-	});
-
-	app.get("/accounts/:accountId/transactions", async (req, res) => {
-		try {
-			const transactions = await getTransactionsForAccount(
-				req.params.accountId,
-			);
-			if (req.query.apiKey === process.env.API_KEY) {
-				res.json(transactions);
-			} else {
-				res.json(
-					transactions.map(({ description, ...publicFields }) => publicFields),
-				);
-			}
-		} catch (error) {
-			console.error("[server] Error fetching transactions:", error);
-			res.status(500).json({ error: "Failed to fetch transactions" });
 		}
 	});
 
