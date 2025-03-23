@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors";
 import { fetchAccounts, refreshTransactionsForAccount } from "./akahu";
 import { getTransactionsForAccount } from "./transactions";
+import {
+	createTransactionNotification,
+	sendTelegramNotification,
+} from "./telegram";
 
 const PORT = Number(process.env.PORT as string);
 
@@ -79,7 +83,29 @@ export const createServer = () => {
 
 	app.post("/webhook", async (req, res) => {
 		console.log("[server] Webhook received:", req.body);
-		res.json({ message: "Webhook received" });
+
+		try {
+			// Check if this is a table INSERT webhook from Supabase
+			const { type, table, record } = req.body;
+
+			if (
+				type === "INSERT" &&
+				table === "akahu_transactions" &&
+				record &&
+				record._id !== "trans_dummy"
+			) {
+				console.log("[server] New transaction detected:", record._id);
+
+				// Send Telegram notification for new transaction
+				const notification = await createTransactionNotification(record);
+				await sendTelegramNotification(notification);
+			}
+
+			res.json({ message: "Webhook processed" });
+		} catch (error) {
+			console.error("[server] Error processing webhook:", error);
+			res.status(500).json({ error: "Failed to process webhook" });
+		}
 	});
 
 	const startServer = () => {
