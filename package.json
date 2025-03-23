@@ -2,7 +2,8 @@
 	"name": "akahu-supabase",
 	"scripts": {
 		"start": "node --no-deprecation -r ts-node/register src/index.ts",
-		"dev": "nodemon --watch 'src/**/*.ts' --exec 'node --no-deprecation -r ts-node/register' src/index.ts"
+		"dev": "nodemon --watch 'src/**/*.ts' --exec 'node --no-deprecation -r ts-node/register' src/index.ts",
+		"getTelegramChatId": "ts-node src/get-chat-id.ts"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.49.1",
