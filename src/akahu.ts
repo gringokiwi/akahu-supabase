@@ -52,6 +52,11 @@ export const fetchAccounts = async (): Promise<FormattedAccount[]> => {
 	);
 };
 
+export const getAccountById = async (accountId: string) => {
+	const accounts = await fetchAccounts();
+	return accounts.find(({ _account }) => _account === accountId);
+};
+
 export const refreshTransactionsForAccount = async (_account: string) => {
 	console.log(`[akahu] Refreshing transactions for account '${_account}'`);
 	await akahu.accounts.refresh(userToken, _account);
