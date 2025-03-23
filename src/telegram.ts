@@ -23,7 +23,16 @@ const getRelativeTimeFromNow = (date: Date): string => {
 	if (diffMs < 0) {
 		const diffSecs = Math.abs(diffMs) / 1000;
 
-		if (diffSecs < 60) return `in ${Math.round(diffSecs)} seconds`;
+		if (diffSecs < 60)
+			return `in ${Math.round(diffSecs)} second${Math.round(diffSecs) === 1 ? "" : "s"}`;
+		if (diffSecs < 3600)
+			return `in ${Math.round(diffSecs / 60)} minute${Math.round(diffSecs / 60) === 1 ? "" : "s"}`;
+		if (diffSecs < 86400)
+			return `in ${Math.round(diffSecs / 3600)} hour${Math.round(diffSecs / 3600) === 1 ? "" : "s"}`;
+		if (diffSecs < 604800)
+			return `in ${Math.round(diffSecs / 86400)} day${Math.round(diffSecs / 86400) === 1 ? "" : "s"}`;
+		if (diffSecs < 2592000)
+			return `in ${Math.round(diffSecs / 604800)} week${Math.round(diffSecs / 604800) === 1 ? "" : "s"}`;
 		if (diffSecs < 3600) return `in ${Math.round(diffSecs / 60)} minutes`;
 		if (diffSecs < 86400) return `in ${Math.round(diffSecs / 3600)} hours`;
 		if (diffSecs < 604800) return `in ${Math.round(diffSecs / 86400)} days`;
@@ -90,16 +99,16 @@ export const sendTelegramNotification = async (
 export const createTransactionNotification = async ({
 	_account,
 	description,
-	amount,
+	amount: rawAmount,
 	date,
-	balance,
+	balance: rawBalance,
 	type,
 }: {
 	_account: string;
 	description: string;
-	amount: number;
+	amount: string;
 	date: string;
-	balance: number;
+	balance: string;
 	type: TransactionType;
 }): Promise<string> => {
 	const account = await getAccountById(_account);
@@ -127,8 +136,10 @@ export const createTransactionNotification = async ({
 	// Calculate relative time from now
 	const relativeTime = getRelativeTimeFromNow(transactionDateUTC);
 
+	const amount = Number.isNaN(Number(rawAmount)) ? 0 : Number(rawAmount);
+	const balance = Number.isNaN(Number(rawBalance)) ? 0 : Number(rawBalance);
 	const amountText = formatAmount(amount);
-	const balanceText = formatAmount(balance ?? 0);
+	const balanceText = formatAmount(balance);
 	const timezone = "NZST"; // New Zealand Standard Time
 
 	// Different message format based on transaction type (expense vs income)
