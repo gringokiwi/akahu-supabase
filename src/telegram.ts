@@ -143,7 +143,7 @@ export const createTransactionNotification = async ({
 	const timezone = "NZST"; // New Zealand Standard Time
 
 	// Different message format based on transaction type (expense vs income)
-	if (amount < 0) {
+	if (amount > 0) {
 		return `💸 *Income: ${amountText}*
 📝 ${description} (${type})
 🏦 ${account?.connection_name}
